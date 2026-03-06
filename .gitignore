@@ -17,6 +17,7 @@ coverage/
 *.jsonl
 wallets/
 *.keystore
+*.swbundle
 
 # Environment
 .env

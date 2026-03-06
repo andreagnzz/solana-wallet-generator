@@ -23,6 +23,16 @@ import { inspectCommand } from './commands/inspect';
 import { balanceCommand } from './commands/balance';
 import { airdropCommand } from './commands/airdrop';
 import { signCommand } from './commands/sign';
+import { bundleJitoCommand } from './commands/bundle-jito';
+import { bundleSweepCommand } from './commands/bundle-sweep';
+import { bundleDistributeCommand } from './commands/bundle-distribute';
+import {
+  bundlePackCommand,
+  bundleListCommand,
+  bundleUnpackCommand,
+  bundleMergeCommand,
+  bundleAddCommand,
+} from './commands/bundle-pack';
 
 // Load environment variables
 dotenv.config();
@@ -237,6 +247,220 @@ program
         address: opts.address,
       };
       await signCommand(options);
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-JITO ────────────────────────────────────────────
+program
+  .command('bundle-jito')
+  .description('Send atomic transaction bundle via Jito Block Engine')
+  .option('--transactions <paths...>', 'Transaction JSON files')
+  .option('--tip-strategy <strategy>', 'Tip strategy: min|p25|p50|p75|p95|custom', 'p50')
+  .option('--tip-amount <lamports>', 'Custom tip amount in lamports')
+  .option('--region <region>', 'Jito region: mainnet|amsterdam|frankfurt|ny|tokyo', 'mainnet')
+  .option('--monitor', 'Monitor bundle until landing', true)
+  .option('--timeout <ms>', 'Monitoring timeout', '60000')
+  .option('--simulate', 'Simulate before sending', false)
+  .option('--dry-run', 'Build without sending', false)
+  .option('--keypair <path>', 'Fee payer keypair JSON file')
+  .action(async (opts) => {
+    try {
+      await bundleJitoCommand({
+        transactions: opts.transactions,
+        tipStrategy: opts.tipStrategy,
+        tipAmount: opts.tipAmount ? parseInt(opts.tipAmount, 10) : undefined,
+        region: opts.region,
+        monitor: opts.monitor,
+        timeout: parseInt(opts.timeout, 10),
+        simulate: opts.simulate,
+        dryRun: opts.dryRun,
+        keypair: opts.keypair,
+      });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-SWEEP ───────────────────────────────────────────
+program
+  .command('bundle-sweep')
+  .description('Sweep SOL/tokens from multiple wallets to one destination')
+  .option('--source-file <path>', 'JSON file with source wallets')
+  .option('--source-bundle <path>', 'Encrypted .swbundle file')
+  .option('--destination <address>', 'Destination address')
+  .option('--mode <mode>', 'Sweep mode: sol-only|tokens-only|all', 'all')
+  .option('--keep-rent', 'Keep rent exemption balance', true)
+  .option('--keep-min <lamports>', 'Minimum balance to keep')
+  .option('--use-jito', 'Use Jito for atomicity', false)
+  .option('--tip-strategy <strategy>', 'Jito tip strategy', 'p25')
+  .option('--concurrent <n>', 'Parallel wallets', '5')
+  .option('--dry-run', 'Estimate without sending', false)
+  .option('--output <path>', 'Save sweep report')
+  .option('-n, --network <net>', 'Network', 'mainnet')
+  .action(async (opts) => {
+    try {
+      await bundleSweepCommand({
+        sourceFile: opts.sourceFile,
+        sourceBundle: opts.sourceBundle,
+        destination: opts.destination,
+        mode: opts.mode,
+        keepRent: opts.keepRent,
+        keepMin: opts.keepMin ? parseInt(opts.keepMin, 10) : undefined,
+        useJito: opts.useJito,
+        tipStrategy: opts.tipStrategy,
+        concurrent: parseInt(opts.concurrent, 10),
+        dryRun: opts.dryRun,
+        output: opts.output,
+        network: opts.network,
+      });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-DISTRIBUTE ─────────────────────────────────────
+program
+  .command('bundle-distribute')
+  .description('Distribute SOL/tokens from one wallet to many')
+  .option('--source-key <path>', 'Source keypair JSON file')
+  .option('--destinations <path>', 'Destinations JSON/CSV file')
+  .option('--token <mint>', 'SPL token mint (omit for native SOL)')
+  .option('--strategy <strategy>', 'Strategy: equal|weighted|fixed|fill-to', 'equal')
+  .option('--total <amount>', 'Total amount in lamports')
+  .option('--target-balance <lamports>', 'Target balance for fill-to strategy')
+  .option('--create-ata', 'Create missing ATAs', true)
+  .option('--use-jito', 'Use Jito bundles', false)
+  .option('--tip-strategy <strategy>', 'Jito tip strategy', 'p50')
+  .option('--batch-size <n>', 'Transfers per transaction')
+  .option('--dry-run', 'Validate without sending', false)
+  .option('--output <path>', 'Save distribution report')
+  .option('-n, --network <net>', 'Network', 'mainnet')
+  .action(async (opts) => {
+    try {
+      await bundleDistributeCommand({
+        sourceKey: opts.sourceKey,
+        destinations: opts.destinations,
+        token: opts.token,
+        strategy: opts.strategy,
+        total: opts.total ? parseInt(opts.total, 10) : undefined,
+        targetBalance: opts.targetBalance ? parseInt(opts.targetBalance, 10) : undefined,
+        createAta: opts.createAta,
+        useJito: opts.useJito,
+        tipStrategy: opts.tipStrategy,
+        batchSize: opts.batchSize ? parseInt(opts.batchSize, 10) : undefined,
+        dryRun: opts.dryRun,
+        output: opts.output,
+        network: opts.network,
+      });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-PACK ────────────────────────────────────────────
+program
+  .command('bundle-pack')
+  .description('Pack wallets into an encrypted .swbundle file')
+  .option('--input <paths...>', 'Wallet JSON files to pack')
+  .option('-o, --output <path>', 'Output .swbundle file path')
+  .option('--name <name>', 'Bundle name')
+  .option('--description <desc>', 'Bundle description')
+  .option('-n, --network <net>', 'Network', 'mainnet')
+  .action(async (opts) => {
+    try {
+      await bundlePackCommand({
+        input: opts.input,
+        output: opts.output,
+        name: opts.name,
+        description: opts.description,
+        network: opts.network,
+      });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-LIST ────────────────────────────────────────────
+program
+  .command('bundle-list')
+  .description('List wallets in a .swbundle file (no password needed)')
+  .option('--file <path>', 'Bundle file path')
+  .action(async (opts) => {
+    try {
+      await bundleListCommand({ file: opts.file });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-UNPACK ──────────────────────────────────────────
+program
+  .command('bundle-unpack')
+  .description('Extract wallets from a .swbundle file')
+  .option('--file <path>', 'Bundle file path')
+  .option('--indices <list>', 'Wallet indices to extract (comma-separated)')
+  .option('--labels <list>', 'Extract by label (comma-separated)')
+  .option('--tags <list>', 'Extract by tag (comma-separated)')
+  .option('--output-dir <path>', 'Directory to save extracted wallets')
+  .option('--format <fmt>', 'Output format: json|keypair', 'json')
+  .action(async (opts) => {
+    try {
+      await bundleUnpackCommand({
+        file: opts.file,
+        indices: opts.indices,
+        labels: opts.labels,
+        tags: opts.tags,
+        outputDir: opts.outputDir,
+        format: opts.format,
+      });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-MERGE ───────────────────────────────────────────
+program
+  .command('bundle-merge')
+  .description('Merge multiple .swbundle files into one')
+  .option('--files <paths...>', 'Bundle files to merge')
+  .option('-o, --output <path>', 'Output merged bundle file')
+  .action(async (opts) => {
+    try {
+      await bundleMergeCommand({
+        files: opts.files,
+        output: opts.output,
+      });
+    } catch (err) {
+      console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
+      process.exit(1);
+    }
+  });
+
+// ─── BUNDLE-ADD ─────────────────────────────────────────────
+program
+  .command('bundle-add')
+  .description('Add a wallet to an existing .swbundle file')
+  .option('--file <path>', 'Existing bundle file')
+  .option('--wallet <path>', 'Wallet JSON file to add')
+  .option('--label <label>', 'Label for the wallet')
+  .option('--tags <tags>', 'Comma-separated tags')
+  .action(async (opts) => {
+    try {
+      await bundleAddCommand({
+        file: opts.file,
+        wallet: opts.wallet,
+        label: opts.label,
+        tags: opts.tags,
+      });
     } catch (err) {
       console.error(chalk.red(`\n  Error: ${(err as Error).message}\n`));
       process.exit(1);
