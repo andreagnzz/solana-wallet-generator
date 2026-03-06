@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
-import { renderCommandBanner } from './ui';
+import { renderCommandBanner, renderMainBanner } from './ui';
 import {
   GenerateOptions,
   VanityOptions,
@@ -474,12 +474,12 @@ program
     }
   });
 
-// Parse and execute
-program.parse(process.argv);
-
-// Show help if no command provided
+// Show banner + help if no command provided, then exit before commander duplicates
 if (!process.argv.slice(2).length) {
-  const { renderMainBanner } = require('./ui');
   renderMainBanner();
   program.outputHelp();
+  process.exit(0);
 }
+
+// Parse and execute
+program.parse(process.argv);
