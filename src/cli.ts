@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
+import { renderCommandBanner } from './ui';
 import {
   GenerateOptions,
   VanityOptions,
@@ -60,6 +61,7 @@ program
   .option('--derivation <path>', 'Custom derivation path')
   .option('--format <fmt>', 'Output format: json|csv|jsonl', 'json')
   .action(async (opts) => {
+    renderCommandBanner('generate', 'Create HD wallet with BIP39 mnemonic');
     try {
       const options: GenerateOptions = {
         words: parseInt(opts.words, 10) as WordCount,
@@ -93,6 +95,7 @@ program
   .option('--save <path>', 'Save found wallet to file')
   .option('--attempts-log', 'Show attempts counter', false)
   .action(async (opts) => {
+    renderCommandBanner('vanity', 'Generate vanity address');
     try {
       const options: VanityOptions = {
         prefix: opts.prefix,
@@ -122,6 +125,7 @@ program
   .option('--unique-seed', 'Use unique mnemonic per wallet', false)
   .option('--progress', 'Show progress bar', false)
   .action(async (opts) => {
+    renderCommandBanner('batch', 'Generate multiple wallets');
     try {
       const options: BatchOptions = {
         count: parseInt(opts.count, 10),
@@ -267,6 +271,7 @@ program
   .option('--dry-run', 'Build without sending', false)
   .option('--keypair <path>', 'Fee payer keypair JSON file')
   .action(async (opts) => {
+    renderCommandBanner('bundle-jito', 'Send Jito MEV bundle');
     try {
       await bundleJitoCommand({
         transactions: opts.transactions,
@@ -302,6 +307,7 @@ program
   .option('--output <path>', 'Save sweep report')
   .option('-n, --network <net>', 'Network', 'mainnet')
   .action(async (opts) => {
+    renderCommandBanner('bundle-sweep', 'Sweep wallets to destination');
     try {
       await bundleSweepCommand({
         sourceFile: opts.sourceFile,
@@ -341,6 +347,7 @@ program
   .option('--output <path>', 'Save distribution report')
   .option('-n, --network <net>', 'Network', 'mainnet')
   .action(async (opts) => {
+    renderCommandBanner('bundle-distribute', 'Distribute to multiple wallets');
     try {
       await bundleDistributeCommand({
         sourceKey: opts.sourceKey,
@@ -472,5 +479,7 @@ program.parse(process.argv);
 
 // Show help if no command provided
 if (!process.argv.slice(2).length) {
+  const { renderMainBanner } = require('./ui');
+  renderMainBanner();
   program.outputHelp();
 }

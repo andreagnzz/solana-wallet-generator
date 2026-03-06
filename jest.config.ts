@@ -21,6 +21,9 @@ const config: Config = {
   coverageDirectory: 'coverage',
   verbose: true,
   testTimeout: 30000,
+  moduleNameMapper: {
+    '^gradient-string$': '<rootDir>/tests/__mocks__/gradient-string.ts',
+  },
 };
 
 export default config;
