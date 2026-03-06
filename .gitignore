@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test coverage
+coverage/
+
+# Wallet files - NEVER commit these
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!jest.config.ts
+*.csv
+*.jsonl
+wallets/
+*.keystore
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
