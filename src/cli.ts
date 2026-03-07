@@ -41,8 +41,8 @@ dotenv.config();
 const program = new Command();
 
 program
-  .name('solana-wallet')
-  .description(chalk.magenta('Professional Solana Wallet Generator CLI'))
+  .name('bundle-aio')
+  .description(chalk.magenta('All-in-one Solana toolkit: wallets, bundles, sweep, distribute, rotation'))
   .version('1.0.0');
 
 // ─── GENERATE ───────────────────────────────────────────────

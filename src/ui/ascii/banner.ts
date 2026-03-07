@@ -7,7 +7,7 @@ export function renderMainBanner(): void {
     horizontalLayout: 'default',
   });
 
-  const subtext = figlet.textSync('WALLET SUITE', {
+  const subtext = figlet.textSync('BUNDLE AIO', {
     font: 'Small',
     horizontalLayout: 'default',
   });

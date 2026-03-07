@@ -1,40 +1,45 @@
-# Solana Wallet Generator
+# Bundle AIO
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
-I built this CLI tool to provide a complete, production-ready solution for generating and managing Solana wallets. It supports HD derivation (BIP39/SLIP-0010), vanity address generation, batch operations, AES-256-GCM encryption, Jito MEV bundles, multi-wallet sweep/distribute, and a full rotation system for anti-detection. Compatible with Phantom, Solflare, Backpack, and Ledger.
+I built this all-in-one Solana CLI toolkit to handle every step of wallet management and bundle operations from a single interface. It covers HD wallet generation (BIP39/SLIP-0010), vanity addresses, batch operations, AES-256-GCM encryption, Jito MEV bundles, multi-wallet sweep/distribute, a full rotation system for anti-detection, and a cyberpunk terminal UI. Compatible with Phantom, Solflare, Backpack, and Ledger.
 
 ## Installation
 
 ```bash
-git clone https://github.com/andreagnzz/solana-wallet-generator.git
-cd solana-wallet-generator
+git clone https://github.com/andreagnzz/bundle-aio.git
+cd bundle-aio
 npm install
 npm run build
+```
+
+Global install:
+```bash
+npm install -g bundle-aio
 ```
 
 ## Quick Start
 
 ```bash
 # Generate a simple wallet
-solana-wallet generate
+bundle-aio generate
 
 # Generate with 24 words, 5 accounts, encrypted output
-solana-wallet generate --words 24 --accounts 5 --encrypt --output wallet.json
+bundle-aio generate --words 24 --accounts 5 --encrypt --output wallet.json
 
 # Find a vanity address
-solana-wallet vanity --prefix So --threads 8
+bundle-aio vanity --prefix So --threads 8
 
 # Send a Jito bundle
-solana-wallet bundle-jito --transactions tx1.json tx2.json --tip-strategy p50
+bundle-aio bundle-jito --transactions tx1.json tx2.json --tip-strategy p50
 
 # Sweep all wallets to one destination
-solana-wallet bundle-sweep --source-bundle wallets.swbundle --destination <address>
+bundle-aio bundle-sweep --source-bundle wallets.swbundle --destination <address>
 
 # Distribute SOL equally to 10 wallets
-solana-wallet bundle-distribute --source-key payer.json --destinations targets.json --strategy equal
+bundle-aio bundle-distribute --source-key payer.json --destinations targets.json --strategy equal
 ```
 
 ## Commands
@@ -44,7 +49,7 @@ solana-wallet bundle-distribute --source-key payer.json --destinations targets.j
 #### `generate` - Create HD Wallet
 
 ```bash
-solana-wallet generate [options]
+bundle-aio generate [options]
 
 Options:
   -w, --words <number>        Word count: 12|15|18|21|24 (default: 12)
@@ -63,7 +68,7 @@ Options:
 #### `vanity` - Vanity Address
 
 ```bash
-solana-wallet vanity [options]
+bundle-aio vanity [options]
 
 Options:
   --prefix <string>       Desired address prefix
@@ -77,7 +82,7 @@ Options:
 #### `batch` - Batch Generation
 
 ```bash
-solana-wallet batch [options]
+bundle-aio batch [options]
 
 Options:
   -n, --count <number>    Wallets to generate (default: 10, max: 10000)
@@ -94,7 +99,7 @@ Options:
 #### `inspect` - Inspect Wallet
 
 ```bash
-solana-wallet inspect [options]
+bundle-aio inspect [options]
 
 Options:
   --file <path>           Wallet JSON file
@@ -109,7 +114,7 @@ Options:
 #### `balance` - Check Balance
 
 ```bash
-solana-wallet balance [options]
+bundle-aio balance [options]
 
 Options:
   --address <pubkey>      Solana address
@@ -124,7 +129,7 @@ Options:
 #### `airdrop` - Request Airdrop
 
 ```bash
-solana-wallet airdrop [options]
+bundle-aio airdrop [options]
 
 Options:
   --address <pubkey>      Destination address
@@ -138,10 +143,10 @@ Options:
 
 ```bash
 # Sign a message
-solana-wallet sign --message "Hello" --private-key <key>
+bundle-aio sign --message "Hello" --private-key <key>
 
 # Verify a signature
-solana-wallet sign --verify --message "Hello" --signature <sig> --address <pubkey>
+bundle-aio sign --verify --message "Hello" --signature <sig> --address <pubkey>
 ```
 
 ### Jito MEV Bundles
@@ -149,7 +154,7 @@ solana-wallet sign --verify --message "Hello" --signature <sig> --address <pubke
 #### `bundle-jito` - Send Atomic Bundle
 
 ```bash
-solana-wallet bundle-jito [options]
+bundle-aio bundle-jito [options]
 
 Options:
   --transactions <paths...>   Transaction JSON files (max 4 user txs)
@@ -172,7 +177,7 @@ Multi-region failover is built in. If the primary region fails, the client autom
 Consolidate SOL and SPL tokens from multiple wallets into a single destination.
 
 ```bash
-solana-wallet bundle-sweep [options]
+bundle-aio bundle-sweep [options]
 
 Options:
   --source-file <path>        JSON file with source wallets
@@ -190,7 +195,7 @@ Options:
 Distribute SOL or SPL tokens from one wallet to many destinations.
 
 ```bash
-solana-wallet bundle-distribute [options]
+bundle-aio bundle-distribute [options]
 
 Options:
   --source-key <path>         Source keypair JSON file
@@ -210,19 +215,19 @@ Encrypted `.swbundle` files store multiple wallets in a single file with AES-256
 
 ```bash
 # Pack wallets into an encrypted bundle
-solana-wallet bundle-pack --input wallet1.json wallet2.json -o farm.swbundle
+bundle-aio bundle-pack --input wallet1.json wallet2.json -o farm.swbundle
 
 # List wallets without decrypting (addresses only)
-solana-wallet bundle-list --file farm.swbundle
+bundle-aio bundle-list --file farm.swbundle
 
 # Extract specific wallets
-solana-wallet bundle-unpack --file farm.swbundle --indices 0,2,4
+bundle-aio bundle-unpack --file farm.swbundle --indices 0,2,4
 
 # Add a wallet to an existing bundle
-solana-wallet bundle-add --file farm.swbundle --wallet new.json
+bundle-aio bundle-add --file farm.swbundle --wallet new.json
 
 # Merge multiple bundles
-solana-wallet bundle-merge --files a.swbundle b.swbundle -o merged.swbundle
+bundle-aio bundle-merge --files a.swbundle b.swbundle -o merged.swbundle
 ```
 
 ## Bundler Architecture
@@ -254,6 +259,16 @@ For submitting batches of bundles:
 - **Adaptive** — Starts pipelined, switches to sequential after a configurable failure threshold (default: 30%).
 - Abort on critical failure with configurable max failures.
 
+### Cyberpunk CLI
+
+The terminal interface features a neon-themed visual layer:
+
+- ASCII art banners with Solana gradient
+- Live rotation dashboards with in-place rendering
+- Styled wallet cards, sweep reports, and distribute reports
+- Progress bars, spinners, and styled tables
+- Confirmation screens for sensitive operations
+
 ## Security Considerations
 
 This project takes security seriously:
@@ -279,7 +294,7 @@ This project takes security seriously:
 
 ```bash
 npm run dev          # Run in development mode
-npm test             # Run tests with coverage (218 tests, 90%+ coverage)
+npm test             # Run tests with coverage (230 tests, 90%+ coverage)
 npm run build        # Compile TypeScript
 npm run lint         # Lint source code
 ```
