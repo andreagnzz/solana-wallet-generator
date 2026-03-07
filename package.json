@@ -1,10 +1,10 @@
 {
-  "name": "solana-wallet-generator",
+  "name": "bundle-aio",
   "version": "1.0.0",
-  "description": "Professional Solana wallet generator CLI with HD derivation, vanity addresses, batch generation, and more",
+  "description": "All-in-one Solana toolkit: HD wallet generation, Jito MEV bundles, sweep, distribute, rotation system and cyberpunk CLI",
   "main": "dist/cli.js",
   "bin": {
-    "solana-wallet": "dist/cli.js"
+    "bundle-aio": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -19,11 +19,16 @@
   "keywords": [
     "solana",
     "wallet",
-    "generator",
-    "hd-wallet",
-    "bip39",
-    "crypto",
-    "cli"
+    "bundle",
+    "jito",
+    "mev",
+    "aio",
+    "sweep",
+    "distribute",
+    "rotation",
+    "anti-detection",
+    "cli",
+    "typescript"
   ],
   "author": "andreagnzz",
   "license": "MIT",
